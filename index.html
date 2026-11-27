@@ -1,175 +1,161 @@
 <!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090914">
-<meta name="description" content="VOXORA — Free, private, on-device text-to-speech. Your words. Your voice. No limits.">
-<title>VOXORA — Your words. Your voice.</title><style>
+<meta name="description" content="VOXORA — Your words. Your voice. No limits.">
+<title>VOXORA — Text to Speech</title><style>
 :root {
   --bg:#090914;
-  --panel:#111120;
-  --panel2:#17172a;
+  --panel:#121222;
+  --panel2:#19192b;
   --text:#f5f5ff;
   --muted:#9999b5;
   --line:rgba(255,255,255,.09);
   --accent:#7967ff;
-  --accent2:#a69aff;
-  --good:#55d6a0;
-  --danger:#ff7185;
+  --accent2:#a99cff;
+  --green:#55d6a0;
 }
-* {box-sizing:border-box}
-body {
+*{box-sizing:border-box}
+body{
   margin:0;
   min-height:100vh;
+  background:radial-gradient(ellipse at 50% -15%,#5142a844,transparent 45%),var(--bg);
   color:var(--text);
-  background:
-    radial-gradient(ellipse at 50% -15%,rgba(110,85,255,.22),transparent 45%),
-    var(--bg);
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif
 }
-button,select,textarea,input {font:inherit}
-button {cursor:pointer}
-.wrap {width:min(960px,92%);margin:auto}
-header {
+button,select,textarea,input{font:inherit}
+button{cursor:pointer}
+.wrap{width:min(920px,92%);margin:auto}
+header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:25px 0;
+  padding:25px 0
 }
-.brand {display:flex;align-items:center;gap:11px}
-.logo {
-  width:39px;height:39px;border-radius:13px;
+.brand{display:flex;align-items:center;gap:11px}
+.logo{
+  width:40px;height:40px;border-radius:13px;
   display:grid;place-items:center;
-  background:linear-gradient(135deg,#8a78ff,#5142c9);
-  font-weight:900;font-size:19px;
-  box-shadow:0 8px 30px #6957ff44;
+  background:linear-gradient(135deg,#9b89ff,#5945ce);
+  font-size:20px;font-weight:900
 }
-.brand-name {font-size:21px;font-weight:850;letter-spacing:2px}
-.badge {
-  border:1px solid var(--line);border-radius:30px;
-  padding:7px 12px;color:var(--muted);font-size:12px;
+.brand-name{font-size:21px;font-weight:850;letter-spacing:2px}
+.badge{
+  color:var(--muted);font-size:11px;
+  border:1px solid var(--line);padding:8px 12px;border-radius:30px
 }
-.hero {text-align:center;padding:47px 0 35px}
-.eyebrow {
+.hero{text-align:center;padding:45px 0 35px}
+.eyebrow{
   color:var(--accent2);font-size:12px;font-weight:800;
-  letter-spacing:3px;text-transform:uppercase;
+  letter-spacing:3px;text-transform:uppercase
 }
-h1 {font-size:clamp(38px,8vw,65px);line-height:1.05;margin:17px 0}
-.gradient {
-  background:linear-gradient(90deg,#a99aff,#6fbcff);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+h1{font-size:clamp(39px,8vw,66px);line-height:1.05;margin:17px 0}
+.gradient{
+  background:linear-gradient(90deg,#ad9aff,#72c7ff);
+  color:transparent;background-clip:text;-webkit-background-clip:text
 }
-.hero p {color:var(--muted);font-size:16px;line-height:1.7;margin:0}
-.workspace {
-  background:linear-gradient(145deg,#151526,#10101c);
-  border:1px solid var(--line);border-radius:24px;
-  padding:23px;box-shadow:0 25px 80px #0005;
+.hero p{color:var(--muted);line-height:1.7}
+.workspace{
+  background:linear-gradient(145deg,#171729,#10101c);
+  border:1px solid var(--line);border-radius:23px;
+  padding:22px;box-shadow:0 25px 80px #0005
 }
-.section-head {
-  display:flex;align-items:center;justify-content:space-between;
-  gap:12px;margin-bottom:14px;
+.heading{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;margin-bottom:13px
 }
-.section-head strong {font-size:14px}
-.counter {font-size:12px;color:var(--muted)}
-textarea {
-  display:block;width:100%;min-height:210px;resize:vertical;
-  color:var(--text);background:#0b0b17;
-  border:1px solid var(--line);border-radius:15px;
-  padding:17px;outline:none;line-height:1.65;font-size:15px;
+.heading strong{font-size:13px}
+.counter{font-size:12px;color:var(--muted)}
+textarea{
+  width:100%;min-height:210px;resize:vertical;
+  background:#0b0b17;color:var(--text);
+  border:1px solid var(--line);border-radius:14px;
+  padding:16px;outline:none;line-height:1.65
 }
-textarea:focus,select:focus,input:focus {
-  border-color:var(--accent);outline:2px solid #7967ff22;
-}
-textarea::placeholder {color:#686880}
-.tools {
-  display:flex;justify-content:space-between;gap:10px;
-  flex-wrap:wrap;margin-top:12px;
-}
-.text-btn {
+textarea:focus,select:focus{border-color:var(--accent)}
+textarea::placeholder{color:#70708a}
+.text-actions{display:flex;justify-content:space-between;margin-top:8px}
+.text-btn{
   background:none;border:0;color:var(--accent2);
-  font-size:12px;padding:7px 0;
+  padding:8px 0;font-size:12px
 }
-.settings {
+.settings{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:14px;margin-top:23px;
+  gap:16px;margin-top:22px
 }
-.field label {
-  display:block;color:var(--muted);font-size:12px;
-  margin-bottom:8px;
+.field label{
+  display:block;color:var(--muted);font-size:11px;
+  margin-bottom:8px;letter-spacing:.5px
 }
-select {
-  width:100%;background:#0b0b17;color:var(--text);
-  border:1px solid var(--line);border-radius:11px;
-  padding:12px;
+select{
+  width:100%;padding:12px;background:#0b0b17;
+  color:var(--text);border:1px solid var(--line);
+  border-radius:11px
 }
-.range-row {display:flex;align-items:center;gap:10px}
-input[type=range] {width:100%;accent-color:var(--accent)}
-.value {font-size:12px;color:var(--accent2);min-width:35px;text-align:right}
-.actions {
+.range-row{display:flex;align-items:center;gap:10px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.value{font-size:12px;color:var(--accent2);min-width:38px;text-align:right}
+.actions{
   display:grid;grid-template-columns:1fr 1fr 1fr;
-  gap:10px;margin-top:23px;
+  gap:10px;margin-top:23px
 }
-.btn {
+.btn{
   border:1px solid var(--line);border-radius:12px;
-  padding:13px 15px;font-weight:750;color:var(--text);
-  background:#202034;
+  padding:13px;color:var(--text);background:#222238;font-weight:750
 }
-.btn:disabled {opacity:.4;cursor:not-allowed}
-.btn.primary {
+.btn.primary{
   background:linear-gradient(110deg,#806dff,#5948d6);
-  border:0;box-shadow:0 8px 25px #705cff38;
+  border:0;box-shadow:0 8px 25px #705cff38
 }
-.btn:hover:not(:disabled) {filter:brightness(1.12)}
-.status {
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.status{
   display:flex;align-items:center;gap:9px;
-  color:var(--muted);font-size:12px;margin-top:20px;
+  color:var(--muted);font-size:12px;margin-top:20px
 }
-.dot {width:8px;height:8px;border-radius:50%;background:var(--good)}
-.dot.busy {background:#ffca65;box-shadow:0 0 12px #ffca65}
-.progress {
-  height:5px;background:#27273b;border-radius:20px;
-  overflow:hidden;margin-top:12px;
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.dot.busy{background:#ffca65}
+.progress{
+  height:5px;background:#29293c;border-radius:20px;
+  overflow:hidden;margin-top:12px
 }
-.progress > div {
-  width:0;height:100%;
-  background:linear-gradient(90deg,#7765ff,#8cc8ff);
-  transition:width .2s;
+.progress div{
+  height:100%;width:0;
+  background:linear-gradient(90deg,#7967ff,#8bcaff);
+  transition:width .2s
 }
-.result {
-  margin-top:20px;padding:16px;
-  border:1px solid var(--line);border-radius:15px;
-  background:#0b0b17;
+.result{
+  margin-top:20px;padding:16px;background:#0b0b17;
+  border:1px solid var(--line);border-radius:14px
 }
-.result audio {width:100%;margin-top:9px}
-.download {
-  display:inline-block;margin-top:10px;color:var(--accent2);
-  text-decoration:none;font-size:13px;font-weight:700;
+.result audio{width:100%;margin-top:12px}
+.download{
+  display:inline-block;margin-top:12px;
+  color:var(--accent2);font-size:13px;text-decoration:none
 }
-.info-grid {
+.info-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
-  gap:13px;margin:23px 0 50px;
+  gap:13px;margin:22px 0 45px
 }
-.info {
+.info{
   background:var(--panel);border:1px solid var(--line);
-  border-radius:15px;padding:17px;
+  border-radius:15px;padding:17px
 }
-.info b {font-size:13px}
-.info p {color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:0}
-footer {
-  border-top:1px solid var(--line);padding:22px 0 30px;
-  color:var(--muted);font-size:12px;text-align:center;
+.info b{font-size:13px}
+.info p{font-size:12px;color:var(--muted);line-height:1.6}
+footer{
+  border-top:1px solid var(--line);padding:23px 0;
+  text-align:center;color:var(--muted);font-size:12px
 }
-.hidden {display:none!important}
-@media(max-width:600px) {
-  .hero {padding:32px 0}
-  .workspace {padding:16px}
-  .settings {grid-template-columns:1fr}
-  .actions {grid-template-columns:1fr 1fr}
-  .actions .primary {grid-column:1/-1;grid-row:1}
-  .info-grid {grid-template-columns:1fr}
-  .badge {font-size:10px}
+.hidden{display:none!important}
+@media(max-width:600px){
+  .hero{padding:30px 0}
+  .workspace{padding:15px}
+  .settings{grid-template-columns:1fr}
+  .actions{grid-template-columns:1fr 1fr}
+  .actions .primary{grid-column:1/-1}
+  .info-grid{grid-template-columns:1fr}
 }
 </style></head><body>
-<div class="wrap">
-<header>
+<div class="wrap"><header>
   <div class="brand">
     <div class="logo">V</div>
     <div class="brand-name">VOXORA</div>
@@ -179,15 +165,15 @@ footer {
 <section class="hero">
   <div class="eyebrow">Text to speech, reimagined</div>
   <h1>Your words.<br><span class="gradient">Your voice.</span></h1>
-  <p>Turn text into speech with a voice that brings your words to life.</p>
+  <p>Natural text-to-speech, running directly in your browser.</p>
 </section><section class="workspace">
-  <div class="section-head">
+  <div class="heading">
     <strong>YOUR SCRIPT</strong>
     <span class="counter" id="counter">0 / 20,000</span>
   </div>  <textarea id="text" maxlength="20000"
-    placeholder="Type or paste something you want VOXORA to speak..."></textarea>  <div class="tools">
-    <button class="text-btn" id="clearText">Clear text</button>
-    <button class="text-btn" id="sampleText">Try a sample</button>
+    placeholder="Type or paste something you want VOXORA to speak..."></textarea>  <div class="text-actions">
+    <button class="text-btn" id="clear">Clear text</button>
+    <button class="text-btn" id="sample">Try a sample</button>
   </div>  <div class="settings">
     <div class="field">
       <label for="engine">SPEECH ENGINE</label>
@@ -198,14 +184,15 @@ footer {
     </div><div class="field">
   <label for="voice">VOICE</label>
   <select id="voice">
-    <option value="default">Default Phonon voice</option>
+    <option value="default">Default voice</option>
   </select>
 </div>
 
 <div class="field">
   <label for="speed">SPEAKING SPEED</label>
   <div class="range-row">
-    <input id="speed" type="range" min="0.7" max="1.4" step="0.05" value="1">
+    <input id="speed" type="range" min="0.7" max="1.4"
+      step="0.05" value="1">
     <span class="value" id="speedValue">1.00×</span>
   </div>
 </div>
@@ -213,7 +200,8 @@ footer {
 <div class="field">
   <label for="pitch">PITCH · BROWSER ENGINE</label>
   <div class="range-row">
-    <input id="pitch" type="range" min="0.5" max="1.8" step="0.05" value="1">
+    <input id="pitch" type="range" min="0.5" max="1.8"
+      step="0.05" value="1">
     <span class="value" id="pitchValue">1.00</span>
   </div>
 </div>
@@ -223,79 +211,64 @@ footer {
     <button class="btn" id="pause" disabled>Ⅱ Pause</button>
     <button class="btn" id="stop" disabled>■ Stop</button>
   </div>  <div class="status" aria-live="polite">
-    <span class="dot" id="statusDot"></span>
+    <span class="dot" id="dot"></span>
     <span id="status">Ready when you are.</span>
-  </div>
-  <div class="progress"><div id="progressBar"></div></div>  <div class="result hidden" id="result">
+  </div>  <div class="progress"><div id="progressBar"></div></div>  <div class="result hidden" id="result">
     <strong>YOUR AUDIO</strong>
     <audio id="audio" controls></audio>
-    <br>
-    <a class="download" id="download" download="voxora-speech.wav">↓ Download WAV</a>
+    <a class="download" id="download" download="voxora-speech.wav">
+      ↓ Download WAV
+    </a>
   </div>
 </section><section class="info-grid">
   <article class="info">
     <b>⚡ Phonon-powered</b>
-    <p>Uses the Phonon 31M English model in Q8 mode when the engine loads successfully.</p>
+    <p>Phonon 31M Q8 speech generation using the official browser runtime.</p>
   </article>
   <article class="info">
     <b>🔒 Private processing</b>
-    <p>Phonon generates speech in your browser. No VOXORA account or API key is required.</p>
+    <p>Speech generation runs locally in your browser, not on a VOXORA server.</p>
   </article>
   <article class="info">
-    <b>🎧 Your audio</b>
-    <p>Listen to generated speech and save it as a WAV file.</p>
+    <b>🎧 Download your audio</b>
+    <p>Listen to the generated speech and save it as a WAV file.</p>
   </article>
 </section>
 </main><footer>
-  VOXORA · Your words. Your voice. No limits.<br>
-  Built for the love of technology.
+  VOXORA · Your words. Your voice. No limits.
 </footer>
 </div><script type="module">
 const $ = id => document.getElementById(id);
 
-const textBox = $("text");
-const engineSelect = $("engine");
-const voiceSelect = $("voice");
-const statusText = $("status");
-const statusDot = $("statusDot");
-const progressBar = $("progressBar");
-const result = $("result");
-const audio = $("audio");
-const download = $("download");
-
-const MAX_CHARS = 20000;
-
-/*
-  Phonon package CDN configuration.
-  The package's official browser build uses a module worker and WASM files.
-  The Blob worker wrapper attempts to create a same-origin worker which
-  imports the package worker from the CDN.
-*/
 const PHONON_VERSION = "0.7.1";
-const PHONON_CDN = `https://cdn.jsdelivr.net/npm/phonon-tts@${PHONON_VERSION}/`;
-const PHONON_MODULE = `https://esm.sh/phonon-tts@${PHONON_VERSION}`;
-const PHONON_WORKER = PHONON_CDN + "worker.js";
+const PHONON_CDN =
+  `https://cdn.jsdelivr.net/npm/phonon-tts@${PHONON_VERSION}/`;
 
-let phononModule = null;
-let phonon = null;
-let phononLoading = null;
-let workerBlobUrl = null;
+const PHONON_MODULE =
+  `https://esm.sh/phonon-tts@${PHONON_VERSION}`;
+
+let PhononTTS = null;
+let tts = null;
+let loading = null;
 let browserVoices = [];
-let currentAudioUrl = null;
-let browserUtterance = null;
-let isBusy = false;
+let currentUrl = null;
+let activeController = null;
+let activeSources = [];
+let audioContext = null;
+let busy = false;
 
-function setStatus(message, busy = false) {
-  statusText.textContent = message;
-  statusDot.classList.toggle("busy", busy);
+function status(message, isBusy = false) {
+  $("status").textContent = message;
+  $("dot").classList.toggle("busy", isBusy);
 }
 
-function setProgress(value) {
-  progressBar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+function progress(value) {
+  $("progressBar").style.width =
+    `${Math.max(0, Math.min(100, value))}%`;
 }
 
 function setBusy(value) {
-  isBusy = value;
+  busy = value;
   $("speak").disabled = value;
   $("pause").disabled = !value;
   $("stop").disabled = !value;
@@ -303,245 +276,263 @@ function setBusy(value) {
 
 function updateCounter() {
   $("counter").textContent =
-    `${textBox.value.length.toLocaleString()} / ${MAX_CHARS.toLocaleString()}`;
+    `${$("text").value.length.toLocaleString()} / 20,000`;
 }
 
-textBox.addEventListener("input", updateCounter);
+$("text").addEventListener("input", updateCounter);
 
-$("clearText").addEventListener("click", () => {
-  textBox.value = "";
+$("clear").addEventListener("click", () => {
+  $("text").value = "";
   updateCounter();
-  textBox.focus();
+  $("text").focus();
 });
 
-$("sampleText").addEventListener("click", () => {
-  textBox.value =
+$("sample").addEventListener("click", () => {
+  $("text").value =
     "Welcome to VOXORA. Your words, your voice, no limits. " +
-    "Experience text to speech directly in your browser.";
+    "Experience natural text-to-speech directly in your browser.";
   updateCounter();
 });
 
 $("speed").addEventListener("input", () => {
-  $("speedValue").textContent = `${Number($("speed").value).toFixed(2)}×`;
+  $("speedValue").textContent =
+    `${Number($("speed").value).toFixed(2)}×`;
 });
 
 $("pitch").addEventListener("input", () => {
-  $("pitchValue").textContent = Number($("pitch").value).toFixed(2);
+  $("pitchValue").textContent =
+    Number($("pitch").value).toFixed(2);
 });
 
-function loadBrowserVoices() {
-  if (!("speechSynthesis" in window)) return;
-
-  browserVoices = speechSynthesis.getVoices();
-  const selected = voiceSelect.value;
-
-  voiceSelect.innerHTML = "";
-
-  if (!browserVoices.length) {
-    voiceSelect.add(new Option("System default voice", "default"));
-    return;
-  }
-
-  browserVoices.forEach((voice, index) => {
-    const label = `${voice.name} (${voice.lang})`;
-    voiceSelect.add(new Option(label, String(index)));
-  });
-
-  if ([...voiceSelect.options].some(o => o.value === selected)) {
-    voiceSelect.value = selected;
-  }
-}
-
-if ("speechSynthesis" in window) {
-  loadBrowserVoices();
-  speechSynthesis.addEventListener?.("voiceschanged", loadBrowserVoices);
-}
-
 /*
-  Attempt to load Phonon directly from public CDNs.
-  No Phonon source files are manually copied into this repository.
-*/
+ * PHONON INTEGRATION
+ *
+ * The npm browser package is the published browser build of
+ * Gradium's official xn-ptts GitHub project.
+ *
+ * The Blob worker wrapper allows the worker to be created from
+ * this page's origin, then imports Phonon's official worker.
+ */
 async function loadPhonon() {
-  if (phonon) return phonon;
-  if (phononLoading) return phononLoading;
+  if (tts) return tts;
+  if (loading) return loading;
 
-  phononLoading = (async () => {
-    setStatus("Loading Phonon engine…", true);
+  loading = (async () => {
+    status("Loading official Phonon runtime…", true);
 
-    phononModule = await import(PHONON_MODULE);
+    const module = await import(PHONON_MODULE);
+    PhononTTS = module.PhononTTS;
 
-    /*
-      A module worker must be created from a same-origin URL.
-      This Blob worker imports the actual Phonon worker from the CDN.
-    */
-    workerBlobUrl = URL.createObjectURL(new Blob(
-      [`import ${JSON.stringify(PHONON_WORKER)};`],
-      { type: "text/javascript" }
-    ));
+    const workerBlob = new Blob(
+      [`import ${JSON.stringify(PHONON_CDN + "worker.js")};`],
+      {type:"text/javascript"}
+    );
 
-    phonon = await phononModule.PhononTTS.load({
-      lang: "en",
-      quant: "q8",
-      workerUrl: workerBlobUrl,
-      onProgress: ({ file, loaded, total, cached }) => {
-        if (total > 0) {
-          const percent = Math.round((loaded / total) * 100);
-          setStatus(
-            cached ? `Using cached model files… ${percent}%` :
-            `Downloading ${file || "model"}… ${percent}%`,
-            true
-          );
-        } else {
-          setStatus(`Loading ${file || "Phonon model"}…`, true);
+    const workerUrl = URL.createObjectURL(workerBlob);
+
+    try {
+      tts = await PhononTTS.load({
+        lang:"en",
+        quant:"q8",
+        workerUrl,
+        onProgress: ({file,loaded,total,cached}) => {
+          if (total > 0) {
+            const percent = Math.round(loaded / total * 100);
+            progress(percent);
+            status(
+              `${cached ? "Cached" : "Downloading"} ${file}: ${percent}%`,
+              true
+            );
+          } else {
+            status(`Loading ${file || "Phonon model"}…`, true);
+          }
         }
-      }
-    });
-
-    voiceSelect.innerHTML = "";
-    voiceSelect.add(new Option("Default Phonon voice", "default"));
-
-    if (phonon.voices) {
-      Object.keys(phonon.voices).forEach(name => {
-        voiceSelect.add(new Option(name, name));
       });
+    } finally {
+      URL.revokeObjectURL(workerUrl);
     }
 
-    return phonon;
+    return tts;
   })();
 
   try {
-    return await phononLoading;
+    return await loading;
   } catch (error) {
-    phononLoading = null;
-    phonon = null;
+    loading = null;
+    tts = null;
     throw error;
   }
 }
 
-function cleanupAudioUrl() {
-  if (currentAudioUrl) {
-    URL.revokeObjectURL(currentAudioUrl);
-    currentAudioUrl = null;
+function populatePhononVoices() {
+  const select = $("voice");
+  select.innerHTML = "";
+
+  select.add(new Option("Default voice", "default"));
+
+  if (tts?.voices) {
+    for (const name of tts.voices) {
+      select.add(new Option(name, name));
+    }
   }
 }
 
-function showAudio(blob) {
-  cleanupAudioUrl();
-  currentAudioUrl = URL.createObjectURL(blob);
-  audio.src = currentAudioUrl;
-  download.href = currentAudioUrl;
-  result.classList.remove("hidden");
-}
+function populateBrowserVoices() {
+  if (!("speechSynthesis" in window)) return;
 
-async function speakWithPhonon(input) {
-  const tts = await loadPhonon();
-  setStatus("Generating speech with Phonon…", true);
-  setProgress(10);
+  browserVoices = speechSynthesis.getVoices();
 
-  const selectedVoice = voiceSelect.value;
-  const options = selectedVoice !== "default"
-    ? { voice: selectedVoice }
-    : {};
+  const select = $("voice");
+  select.innerHTML = "";
+  select.add(new Option("System default voice", "default"));
 
-  const wav = await tts.synthWav(input, options);
-
-  setProgress(100);
-  showAudio(wav);
-  await audio.play().catch(() => {});
-}
-
-function speakWithBrowser(input) {
-  return new Promise((resolve, reject) => {
-    if (!("speechSynthesis" in window)) {
-      reject(new Error("Browser speech synthesis is not supported."));
-      return;
-    }
-
-    speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(input);
-    const selected = voiceSelect.value;
-
-    if (selected !== "default" && browserVoices[Number(selected)]) {
-      utterance.voice = browserVoices[Number(selected)];
-    }
-
-    utterance.rate = Number($("speed").value);
-    utterance.pitch = Number($("pitch").value);
-
-    browserUtterance = utterance;
-
-    utterance.onstart = () => {
-      setStatus("Speaking with browser speech…", true);
-      setProgress(20);
-    };
-
-    utterance.onend = () => {
-      setProgress(100);
-      resolve();
-    };
-
-    utterance.onerror = event => {
-      reject(new Error(event.error || "Browser speech failed."));
-    };
-
-    speechSynthesis.speak(utterance);
+  browserVoices.forEach((voice,index) => {
+    select.add(new Option(
+      `${voice.name} (${voice.lang})`,
+      String(index)
+    ));
   });
 }
 
-async function generateSpeech() {
-  const input = textBox.value.trim();
+if ("speechSynthesis" in window) {
+  populateBrowserVoices();
+  speechSynthesis.addEventListener(
+    "voiceschanged",
+    populateBrowserVoices
+  );
+}
 
-  if (!input) {
-    setStatus("Add some text before generating speech.");
-    textBox.focus();
+function cleanupAudio() {
+  for (const source of activeSources) {
+    try { source.stop(); } catch {}
+  }
+  activeSources = [];
+
+  if (audioContext) {
+    audioContext.close().catch(() => {});
+    audioContext = null;
+  }
+
+  $("audio").pause();
+}
+
+function cleanupUrl() {
+  if (currentUrl) {
+    URL.revokeObjectURL(currentUrl);
+    currentUrl = null;
+  }
+}
+
+function displayWav(blob) {
+  cleanupUrl();
+
+  currentUrl = URL.createObjectURL(blob);
+  $("audio").src = currentUrl;
+  $("download").href = currentUrl;
+  $("result").classList.remove("hidden");
+}
+
+async function phononSpeech(text) {
+  const engine = await loadPhonon();
+
+  populatePhononVoices();
+  status("Generating speech with Phonon…", true);
+
+  const voice = $("voice").value;
+  const options = voice === "default" ? {} : {voice};
+
+  const wav = await engine.synthWav(text, options);
+
+  displayWav(wav);
+  progress(100);
+
+  status("Speech generated. Ready to play.");
+  await $("audio").play().catch(() => {});
+}
+
+async function browserSpeech(text) {
+  if (!("speechSynthesis" in window)) {
+    throw new Error("Browser speech synthesis is unavailable.");
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const selected = $("voice").value;
+
+  if (selected !== "default") {
+    const selectedVoice = browserVoices[Number(selected)];
+    if (selectedVoice) utterance.voice = selectedVoice;
+  }
+
+  utterance.rate = Number($("speed").value);
+  utterance.pitch = Number($("pitch").value);
+
+  await new Promise((resolve,reject) => {
+    utterance.onstart = () => {
+      status("Speaking with browser speech…",true);
+      progress(20);
+    };
+
+    utterance.onend = resolve;
+    utterance.onerror = event =>
+      reject(new Error(event.error || "Speech failed."));
+
+    speechSynthesis.speak(utterance);
+  });
+
+  progress(100);
+}
+
+async function generate() {
+  const text = $("text").value.trim();
+
+  if (!text) {
+    status("Enter some text first.");
+    $("text").focus();
     return;
   }
 
-  if (input.length > MAX_CHARS) {
-    setStatus("Your text is too long.");
-    return;
-  }
-
-  if (isBusy) return;
+  if (busy) return;
 
   setBusy(true);
-  setProgress(0);
-  result.classList.add("hidden");
+  progress(0);
+  cleanupAudio();
+  $("result").classList.add("hidden");
 
   try {
-    if (engineSelect.value === "phonon") {
-      await speakWithPhonon(input);
-      setStatus("Phonon speech generated.");
+    if ($("engine").value === "phonon") {
+      await phononSpeech(text);
     } else {
-      await speakWithBrowser(input);
-      setStatus("Browser speech finished.");
+      populateBrowserVoices();
+      await browserSpeech(text);
     }
   } catch (error) {
-    console.error("VOXORA error:", error);
+    console.error("VOXORA:",error);
 
-    if (engineSelect.value === "phonon") {
-      setStatus("Phonon could not start. Switching to browser speech…", true);
+    if ($("engine").value === "phonon") {
+      status("Phonon failed. Trying browser speech…",true);
 
       try {
-        await speakWithBrowser(input);
-        setStatus("Speech completed using browser fallback.");
+        populateBrowserVoices();
+        await browserSpeech(text);
+        status("Browser fallback completed.");
       } catch (fallbackError) {
         console.error(fallbackError);
-        setStatus(`Speech failed: ${fallbackError.message}`);
+        status(`Speech error: ${fallbackError.message}`);
       }
     } else {
-      setStatus(`Speech failed: ${error.message}`);
+      status(`Speech error: ${error.message}`);
     }
   } finally {
     setBusy(false);
   }
 }
 
-$("speak").addEventListener("click", generateSpeech);
+$("speak").addEventListener("click",generate);
 
-$("pause").addEventListener("click", () => {
-  if (engineSelect.value === "browser" && "speechSynthesis" in window) {
+$("pause").addEventListener("click",() => {
+  if ($("engine").value === "browser") {
     if (speechSynthesis.paused) {
       speechSynthesis.resume();
       $("pause").textContent = "Ⅱ Pause";
@@ -549,64 +540,46 @@ $("pause").addEventListener("click", () => {
       speechSynthesis.pause();
       $("pause").textContent = "▶ Resume";
     }
-  } else {
-    audio.pause();
-    $("pause").textContent = "▶ Resume";
-    $("pause").onclick = () => {
-      audio.play();
+  } else if ($("audio").src) {
+    if ($("audio").paused) {
+      $("audio").play();
       $("pause").textContent = "Ⅱ Pause";
-      $("pause").onclick = null;
-    };
-  }
-});
-
-$("stop").addEventListener("click", () => {
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
-
-  audio.pause();
-  audio.currentTime = 0;
-
-  if (phonon) {
-    // Keep the loaded model available for the next request.
-    // The active audio element is stopped separately.
-  }
-
-  setBusy(false);
-  setProgress(0);
-  setStatus("Stopped.");
-  $("pause").textContent = "Ⅱ Pause";
-});
-
-audio.addEventListener("ended", () => {
-  setBusy(false);
-  setStatus("Playback finished.");
-});
-
-engineSelect.addEventListener("change", () => {
-  if (engineSelect.value === "browser") {
-    loadBrowserVoices();
-  } else {
-    voiceSelect.innerHTML = "";
-    voiceSelect.add(new Option("Default Phonon voice", "default"));
-    if (phonon?.voices) {
-      Object.keys(phonon.voices).forEach(name => {
-        voiceSelect.add(new Option(name, name));
-      });
+    } else {
+      $("audio").pause();
+      $("pause").textContent = "▶ Resume";
     }
   }
 });
 
-window.addEventListener("beforeunload", () => {
-  cleanupAudioUrl();
+$("stop").addEventListener("click",() => {
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
 
-  if (phonon) phonon.dispose();
+  cleanupAudio();
+  setBusy(false);
+  progress(0);
+  status("Stopped.");
+  $("pause").textContent = "Ⅱ Pause";
+});
 
-  if (workerBlobUrl) {
-    URL.revokeObjectURL(workerBlobUrl);
+$("audio").addEventListener("ended",() => {
+  setBusy(false);
+  status("Playback finished.");
+});
+
+$("engine").addEventListener("change",() => {
+  if ($("engine").value === "browser") {
+    populateBrowserVoices();
+  } else {
+    populatePhononVoices();
   }
 });
 
+window.addEventListener("beforeunload",() => {
+  cleanupUrl();
+  if (tts) tts.dispose();
+});
+
 updateCounter();
-setStatus("Ready when you are.");
+status("Ready when you are.");
 </script></body>
-            </html>
+    </html>
