@@ -3,7 +3,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#09090d">
-<meta name="description" content="VOXORA — Your words. Your voice. No limits.">
 <title>VOXORA — Text to Speech</title><style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -186,17 +185,6 @@ select {
     border-radius: 11px;
     padding: 13px;
     outline: none;
-}
-
-select:focus {
-    border-color: var(--purple);
-}
-
-.voice-note {
-    color: var(--muted);
-    font-size: 11px;
-    margin-top: 8px;
-    line-height: 1.5;
 }
 
 .generate {
@@ -383,10 +371,9 @@ footer strong {
             <label for="voice">VOICE</label>
             <select id="voice">
                 <option value="default">Default Voice</option>
+                <option value="Zoey">Zoey</option>
+                <option value="Juniper">Juniper</option>
             </select>
-            <div class="voice-note" id="voiceNote">
-                Loading available voices...
-            </div>
         </div>
 
         <div class="control">
@@ -402,7 +389,7 @@ footer strong {
         ✦ Generate speech
     </button>
 
-    <div class="status" id="status" aria-live="polite">
+    <div class="status" id="status">
         <div class="status-top">
             <span id="statusText">Preparing engine...</span>
             <span id="percent">0%</span>
@@ -452,238 +439,310 @@ footer strong {
 </footer><script type="module">
 const $ = id => document.getElementById(id);
 
-const PHONON_VERSION = "0.7.1";
-const PHONON_CDN =
-    `https://cdn.jsdelivr.net/npm/phonon-tts@${PHONON_VERSION}/`;
-const PHONON_MODULE =
-    `https://esm.sh/phonon-tts@${PHONON_VERSION}`;
+const textInput = $("text");
+const counter = $("counter");
+const voiceSelect = $("voice");
+const qualitySelect = $("quality");
+const generateButton = $("generate");
+const statusBox = $("status");
+const statusText = $("statusText");
+const percent = $("percent");
+const progress = $("progress");
+const result = $("result");
+const audio = $("audio");
+const download = $("download");
 
+const PHONON_VERSION = "0.7.1";
+const CDN_BASE = `https://cdn.jsdelivr.net/npm/phonon-tts@${PHONON_VERSION}/`;
+const WORKER_URL = CDN_BASE + "worker.js";
 const CATALOG_URL =
     "https://huggingface.co/gradium/phonon-voices/resolve/main/voices.jsonl";
 
-let tts = null;
-let loading = null;
-let catalog = [];
-let activeVoice = null;
-let currentUrl = null;
-let busy = false;
+let PhononTTS;
+let engine = null;
+let enginePromise = null;
+let catalogueLoaded = false;
+let registeredVoices = new Set();
+let currentAudioUrl = null;
 
-function setStatus(message, percent = 0) {
-    $("status").style.display = "block";
-    $("statusText").textContent = message;
-    $("percent").textContent = `${Math.round(percent)}%`;
-    $("progress").style.width =
-        `${Math.max(0, Math.min(100, percent))}%`;
+function setProgress(value, message) {
+    const safeValue = Math.max(0, Math.min(100, value));
+    progress.style.width = safeValue + "%";
+    percent.textContent = Math.round(safeValue) + "%";
+    if (message) statusText.textContent = message;
 }
 
-function setBusy(value) {
-    busy = value;
-    $("generate").disabled = value;
-    $("generate").textContent = value
-        ? "Generating speech..."
+function showStatus(message, value = 0) {
+    statusBox.style.display = "block";
+    setProgress(value, message);
+}
+
+function setBusy(busy) {
+    generateButton.disabled = busy;
+    generateButton.textContent = busy
+        ? "Preparing speech..."
         : "✦ Generate speech";
 }
 
-function updateCounter() {
-    $("counter").textContent =
-        `${$("text").value.length.toLocaleString()} characters`;
-}
+textInput.addEventListener("input", () => {
+    counter.textContent =
+        textInput.value.length.toLocaleString() + " characters";
+});
 
-$("text").addEventListener("input", updateCounter);
+async function loadPhononModule() {
+    if (PhononTTS) return PhononTTS;
 
-async function loadCatalog() {
-    try {
-        $("voiceNote").textContent = "Fetching voice catalogue...";
+    const module = await import(
+        `https://esm.sh/phonon-tts@${PHONON_VERSION}`
+    );
 
-        const response = await fetch(CATALOG_URL);
-
-        if (!response.ok) {
-            throw new Error(`Voice catalogue HTTP ${response.status}`);
-        }
-
-        const raw = await response.text();
-
-        catalog = raw.split(/\r?\n/)
-            .filter(line => line.trim())
-            .map(line => JSON.parse(line))
-            .map(item => {
-                const filename =
-                    item.filename || item.file || item.id || "";
-
-                const id = filename.split("/").pop()
-                    .replace(/\.safetensors$/i, "");
-
-                return {
-                    id,
-                    name: item.name || id,
-                    language: item.language || item.lang || ""
-                };
-            })
-            .filter(item => item.id);
-
-        const select = $("voice");
-        select.innerHTML = "";
-        select.add(new Option("Default Voice", "default"));
-
-        catalog.forEach((voice, index) => {
-            select.add(new Option(voice.name, String(index)));
-        });
-
-        $("voiceNote").textContent =
-            `${catalog.length} catalogue entries loaded.`;
-
-    } catch (error) {
-        console.error("Voice catalogue:", error);
-        $("voiceNote").textContent =
-            "Online voice catalogue unavailable. Default voice is available.";
+    if (!module.PhononTTS) {
+        throw new Error("Phonon module could not be loaded.");
     }
+
+    PhononTTS = module.PhononTTS;
+    return PhononTTS;
 }
 
-async function loadPhonon() {
-    if (tts) return tts;
-    if (loading) return loading;
+async function loadEngine() {
+    if (engine) return engine;
+    if (enginePromise) return enginePromise;
 
-    loading = (async () => {
-        setStatus("Loading Phonon engine...", 0);
+    enginePromise = (async () => {
+        showStatus("Loading Phonon 31M...", 3);
 
-        const module = await import(PHONON_MODULE);
+        const TTS = await loadPhononModule();
+
+        showStatus("Preparing local speech engine...", 8);
+
+        // A same-origin Blob worker imports the official package worker.
+        // Its own relative imports and WASM assets resolve from the CDN.
+        const workerSource =
+            `import ${JSON.stringify(WORKER_URL)};`;
 
         const workerBlob = new Blob(
-            [`import ${JSON.stringify(PHONON_CDN + "worker.js")};`],
+            [workerSource],
             { type: "text/javascript" }
         );
 
         const workerUrl = URL.createObjectURL(workerBlob);
 
         try {
-            tts = await module.PhononTTS.load({
+            engine = await TTS.load({
                 lang: "en",
-                quant: $("quality").value,
+                quant: qualitySelect.value,
                 workerUrl,
                 onProgress: ({ file, loaded, total, cached }) => {
-                    const percent = total
-                        ? Math.round(loaded / total * 100)
-                        : 0;
+                    if (total > 0) {
+                        const ratio = loaded / total;
+                        const message = cached
+                            ? "Using cached model files..."
+                            : "Downloading " + (file || "model files") + "...";
 
-                    setStatus(
-                        `${cached ? "Using cached" : "Loading"} ${file || "model"}...`,
-                        percent
-                    );
+                        setProgress(
+                            10 + Math.min(75, ratio * 75),
+                            message
+                        );
+                    } else {
+                        setProgress(15, "Loading model files...");
+                    }
                 }
             });
+
+            return engine;
         } finally {
+            // The worker has been constructed by load().
             URL.revokeObjectURL(workerUrl);
         }
-
-        return tts;
     })();
 
     try {
-        return await loading;
+        return await enginePromise;
     } catch (error) {
-        loading = null;
-        tts = null;
+        enginePromise = null;
+        engine = null;
         throw error;
     }
 }
 
-async function registerSelectedVoice() {
-    const value = $("voice").value;
+async function loadVoiceCatalogue() {
+    if (catalogueLoaded) return;
 
-    if (value === "default") {
-        activeVoice = null;
-        return null;
+    try {
+        const response = await fetch(CATALOG_URL);
+
+        if (!response.ok) {
+            throw new Error("Voice catalogue request failed.");
+        }
+
+        const catalogueText = await response.text();
+
+        const entries = catalogueText
+            .split(/\r?\n/)
+            .filter(Boolean)
+            .map(line => {
+                try {
+                    return JSON.parse(line);
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
+
+        const englishVoices = entries.filter(entry => {
+            const language = String(
+                entry.language || entry.lang || ""
+            ).toLowerCase();
+
+            return language === "en" || language.startsWith("en-");
+        });
+
+        const existing = new Set(
+            [...voiceSelect.options].map(option => option.value)
+        );
+
+        for (const entry of englishVoices) {
+            const name = entry.name;
+            const file = entry.file;
+
+            if (!name || !file || existing.has(name)) continue;
+
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            voiceSelect.appendChild(option);
+            existing.add(name);
+        }
+
+        window.voxoraVoiceFiles = Object.fromEntries(
+            englishVoices
+                .filter(entry => entry.name && entry.file)
+                .map(entry => [entry.name, entry.file])
+        );
+
+        catalogueLoaded = true;
+    } catch (error) {
+        console.warn("Voice catalogue could not be loaded:", error);
+        statusText.textContent =
+            "Using available voices. Catalogue unavailable.";
+    }
+}
+
+async function prepareSelectedVoice(tts) {
+    const selectedName = voiceSelect.value;
+
+    if (selectedName === "default") return undefined;
+
+    if (registeredVoices.has(selectedName)) {
+        return selectedName;
     }
 
-    const selected = catalog[Number(value)];
+    const files = window.voxoraVoiceFiles || {};
+    const file = files[selectedName];
 
-    if (!selected) {
-        throw new Error("Selected voice was not found.");
-    }
-
-    if (activeVoice === selected.id) {
-        return selected.name;
-    }
-
-    setStatus(`Loading voice: ${selected.name}...`, 0);
-
-    /*
-      The catalogue metadata is fetched from Hugging Face.
-      Voice registration requires a compatible voice-file URL
-      and the exact API supported by the installed Phonon version.
-    */
-    const voiceUrl =
-        `https://huggingface.co/gradium/phonon-voices/resolve/main/voices/${encodeURIComponent(selected.id)}.safetensors`;
-
-    if (typeof tts.addVoice !== "function") {
+    if (!file) {
         throw new Error(
-            "This Phonon package does not expose addVoice()."
+            "The selected voice is not available in the voice catalogue."
         );
     }
 
-    await tts.addVoice(selected.name, voiceUrl);
-    activeVoice = selected.id;
+    const voiceUrl = file.startsWith("http")
+        ? file
+        : "https://huggingface.co/gradium/phonon-voices/resolve/main/" +
+          file.replace(/^\/+/, "");
 
-    return selected.name;
+    showStatus("Loading " + selectedName + " voice...", 90);
+
+    await tts.addVoice(selectedName, voiceUrl);
+    registeredVoices.add(selectedName);
+
+    return selectedName;
 }
 
-function showAudio(blob) {
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
+function clearPreviousAudio() {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
 
-    currentUrl = URL.createObjectURL(blob);
-    $("audio").src = currentUrl;
-    $("download").href = currentUrl;
-    $("result").style.display = "block";
+    if (currentAudioUrl) {
+        URL.revokeObjectURL(currentAudioUrl);
+        currentAudioUrl = null;
+    }
+
+    download.removeAttribute("href");
+    result.style.display = "none";
 }
 
-async function generateSpeech() {
-    const text = $("text").value.trim();
+generateButton.addEventListener("click", async () => {
+    const speechText = textInput.value.trim();
 
-    if (!text) {
-        setStatus("Please enter some text first.", 0);
-        $("text").focus();
+    if (!speechText) {
+        alert("Please enter some text first.");
+        textInput.focus();
         return;
     }
 
-    if (busy) return;
+    if (speechText.length > 20000) {
+        alert("Your text is too long.");
+        return;
+    }
 
     setBusy(true);
-    $("result").style.display = "none";
+    clearPreviousAudio();
+    showStatus("Starting VOXORA...", 0);
 
     try {
-        const engine = await loadPhonon();
-        const voiceName = await registerSelectedVoice();
+        const tts = await loadEngine();
 
-        setStatus("Generating your speech...", 0);
+        await loadVoiceCatalogue();
 
-        const options = voiceName ? { voice: voiceName } : {};
-        const wav = await engine.synthWav(text, options);
+        const selectedVoice = await prepareSelectedVoice(tts);
 
-        showAudio(wav);
-        setStatus("Speech generated successfully.", 100);
+        showStatus("Generating your speech...", 96);
 
-        await $("audio").play().catch(() => {});
+        const options = selectedVoice
+            ? { voice: selectedVoice }
+            : {};
+
+        const wavBlob = await tts.synthWav(speechText, options);
+
+        if (!(wavBlob instanceof Blob) || wavBlob.size === 0) {
+            throw new Error("Phonon returned an empty audio file.");
+        }
+
+        currentAudioUrl = URL.createObjectURL(wavBlob);
+
+        audio.src = currentAudioUrl;
+        download.href = currentAudioUrl;
+
+        result.style.display = "block";
+        setProgress(100, "Speech generated successfully.");
 
     } catch (error) {
         console.error("VOXORA error:", error);
-        setStatus(`Error: ${error.message}`, 0);
+
+        let message = error?.message || "An unknown error occurred.";
+
+        if (message.toLowerCase().includes("worker")) {
+            message =
+                "The Phonon worker could not start. Try opening VOXORA in a modern browser.";
+        }
+
+        showStatus("Generation failed: " + message, 0);
+
     } finally {
         setBusy(false);
     }
-}
-
-$("generate").addEventListener("click", generateSpeech);
-
-$("voice").addEventListener("change", () => {
-    activeVoice = null;
 });
 
 window.addEventListener("beforeunload", () => {
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
-    if (tts && typeof tts.dispose === "function") tts.dispose();
-});
+    if (currentAudioUrl) {
+        URL.revokeObjectURL(currentAudioUrl);
+    }
 
-updateCounter();
-loadCatalog();
+    if (engine) {
+        engine.dispose();
+    }
+});
 </script></body>
-          </html>
+    </html>
