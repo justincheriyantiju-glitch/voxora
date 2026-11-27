@@ -216,21 +216,18 @@ const progress = $("progress"), progressFill = $("progressFill"), note = $("engi
 const synth = window.speechSynthesis;
 
 /*
- * Phonon is loaded from the package's raw ES module, not the jsDelivr "+esm" bundle:
- * the library spawns its worker and locates its wasm files with
- * `new URL('./worker.js', import.meta.url)`, which only resolves correctly
- * when the module's real URL sits inside the package folder.
- * Pinned to 0.7.1, the current phonon-tts release.
+ * Phonon is loaded from the package's raw ES module (not the "+esm" bundle) so its
+ * wasm files resolve beside it. Browsers refuse to start a Web Worker from another
+ * origin, so the worker is started from a tiny same-origin blob that imports the
+ * package's real worker.js from the CDN.
  */
-const PHONON_URL = "https://cdn.jsdelivr.net/npm/phonon-tts@0.7.1/index.js";
+const PHONON_BASE = "https://cdn.jsdelivr.net/npm/phonon-tts@0.7.1/";
+const PHONON_URL = PHONON_BASE + "index.js";
+const PHONON_WORKER = PHONON_BASE + "worker.js";
 const VOICES_JSONL = "https://huggingface.co/gradium/phonon-voices/resolve/main/voices.jsonl";
 const HF_RAW = "https://huggingface.co/gradium/phonon-voices/resolve/main/";
 
-/*
- * English catalog voices (name, gender, voice file id), from the Phonon voice catalog
- * https://huggingface.co/gradium/phonon-voices (its voices.jsonl). Used as a fallback if
- * the catalog cannot be fetched at runtime; the live list refreshes from voices.jsonl.
- */
+/* English catalog voices (name, gender, voice file id): fallback if voices.jsonl can't be read. */
 const FALLBACK_VOICES = [
   ["Zoey", "female", "NbpkqMVS3CJeq2j8"], ["Juniper", "female", "NIWIOv5vTi5eRMj8"],
   ["Everly", "female", "vjFyp2BcCyTlUmYb"], ["Harper", "female", "4SZHfMpw-p46Ywgs"],
@@ -274,7 +271,6 @@ let sysVoices = [];
 function loadSysVoices() { sysVoices = synth ? synth.getVoices() : []; if (engineSel.value === "browser") fillVoices(); }
 if (synth) { loadSysVoices(); synth.onvoiceschanged = loadSysVoices; }
 
-/* Catalog: refreshed from voices.jsonl when possible, FALLBACK_VOICES otherwise. */
 let catalog = [];
 let catalogByName = new Map();
 
@@ -282,6 +278,11 @@ function setCatalog(list) {
   catalog = list;
   catalogByName = new Map(list.map(v => [v.name, v.url]));
   if (engineSel.value === "phonon") fillVoices();
+}
+function useFallbackCatalog() {
+  setCatalog(FALLBACK_VOICES.map(([name, gender, id]) => ({
+    name, gender, url: HF_RAW + "voices/" + id + ".safetensors"
+  })));
 }
 async function fetchCatalog() {
   try {
@@ -291,16 +292,17 @@ async function fetchCatalog() {
     for (const line of (await res.text()).split("\n")) {
       if (!line.trim()) continue;
       const v = JSON.parse(line);
-      if (v.language === "en" && v.filename) {
-        list.push({ name: v.name, gender: v.gender === "male" ? "male" : "female", url: HF_RAW + v.filename });
+      const file = v.filename || v.file;
+      if (v.language === "en" && file && v.name) {
+        list.push({ name: v.name, gender: v.gender === "male" ? "male" : "female", url: HF_RAW + file });
       }
     }
     if (!list.length) throw new Error("catalog empty");
+    /* Without gender data every voice would look female, so keep the built-in list instead. */
+    if (!list.some(v => v.gender === "male")) throw new Error("no gender data");
     setCatalog(list);
   } catch (_) {
-    setCatalog(FALLBACK_VOICES.map(([name, gender, id]) => ({
-      name, gender, url: HF_RAW + "voices/" + id + ".safetensors"
-    })));
+    useFallbackCatalog();
   }
 }
 
@@ -339,7 +341,6 @@ engineSel.onchange = onEngineChange;
 let phonon = null, phononLoading = null, cancelled = false, objectUrl = null;
 let addedVoices = new Set();
 
-/* The library reports progress as { file, loaded, total, cached }. */
 function readProgress(p) {
   if (p && typeof p === "object" && p.total) return p.loaded / p.total;
   if (typeof p === "number") return p > 1 ? p / 100 : p;
@@ -352,9 +353,13 @@ async function loadPhonon() {
       setStatus("Downloading Phonon (first time only)...");
       setProgress(0);
       const mod = await import(PHONON_URL);
+      const workerUrl = URL.createObjectURL(
+        new Blob([`import ${JSON.stringify(PHONON_WORKER)};`], { type: "text/javascript" })
+      );
       const t = await mod.PhononTTS.load({
         lang: "en",
         quant: "q8",
+        workerUrl,
         onProgress: p => {
           const f = readProgress(p);
           if (f !== null) { setProgress(f); setStatus("Downloading Phonon... " + Math.round(f * 100) + "%"); }
@@ -369,7 +374,7 @@ async function loadPhonon() {
 }
 /* Catalog voices are not part of the model: register them with the runtime on first use. */
 async function ensureVoice(t, voice) {
-  if (voice === "default" || t.voices.includes(voice) || addedVoices.has(voice)) return;
+  if (voice === "default" || addedVoices.has(voice) || [...t.voices].includes(voice)) return;
   const url = catalogByName.get(voice);
   if (!url) throw new Error("Voice \"" + voice + "\" is not available.");
   setStatus("Downloading voice \"" + voice + "\" (first use)...");
@@ -455,6 +460,7 @@ pauseBtn.onclick = () => {
 stopBtn.onclick = () => { stopAll(); setStatus("Stopped."); };
 window.addEventListener("beforeunload", () => { if (synth) synth.cancel(); });
 
+useFallbackCatalog();
 fetchCatalog();
 onEngineChange();
 </script>
